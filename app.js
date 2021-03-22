@@ -21,7 +21,7 @@ const bookSchema = new mongoose.Schema({
     required: [true, 'a book must have a url'],
   },
 
-  published: {
+  publisher: {
     type: String,
     required: [true, 'a book must have a publisher name'],
   },
@@ -45,10 +45,37 @@ app.get('/api/v1/books', async (req, res) => {
 
     res.status(200).json({
       status: 'success',
+      results: books.length,
       books,
     });
   } catch (error) {
-    console.log(error);
+    res.status(500).json({
+      status: 'error',
+      error,
+    });
+  }
+});
+
+//Add A book to DB
+app.post('/api/v1/books', async (req, res) => {
+  try {
+    const book = await Book.create({
+      title: req.body.title,
+      author: req.body.author,
+      bookUrl: req.body.bookUrl,
+      publisher: req.body.publisher,
+      description: req.body.description,
+    });
+
+    res.status(200).json({
+      status: 'success',
+      book,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error,
+    });
   }
 });
 

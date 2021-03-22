@@ -4,16 +4,6 @@ const app = express();
 
 app.use(express.json());
 
-//Error Class
-
-class appError extends Error {
-  constructor(message, statusCode) {
-    super(message);
-
-    this.statusCode = this.statusCode;
-  }
-}
-
 //MODEL
 const bookSchema = new mongoose.Schema({
   title: {

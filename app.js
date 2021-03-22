@@ -4,6 +4,16 @@ const app = express();
 
 app.use(express.json());
 
+//Error Class
+
+class appError extends Error {
+  constructor(message, statusCode) {
+    super(message);
+
+    this.statusCode = this.statusCode;
+  }
+}
+
 //MODEL
 const bookSchema = new mongoose.Schema({
   title: {
@@ -70,6 +80,46 @@ app.post('/api/v1/books', async (req, res) => {
     res.status(200).json({
       status: 'success',
       book,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error,
+    });
+  }
+});
+
+//Get a single book from DB
+app.get('/api/v1/books/:id', async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.id);
+
+    if (!book) {
+      res.status(404).json({
+        status: 'error',
+        message: 'No book was found with that ID',
+      });
+    }
+
+    res.status(200).json({
+      status: 'success',
+      book,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error,
+    });
+  }
+});
+
+//Delete a book from DB
+app.delete('/api/v1/books/:id', async (req, res) => {
+  try {
+    await Book.findByIdAndDelete(req.params.id);
+
+    res.status(204).json({
+      status: 'Delete Successful',
     });
   } catch (error) {
     res.status(500).json({

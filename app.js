@@ -56,6 +56,10 @@ app.get('/api/v1/books', async (req, res) => {
   }
 });
 
+app.get('/', (req, res) => {
+  res.send('Hello world');
+});
+
 //Add A book to DB
 app.post('/api/v1/books', async (req, res) => {
   try {

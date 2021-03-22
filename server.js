@@ -3,7 +3,10 @@ const dotenv = require('dotenv');
 
 dotenv.config({ path: './config.env' });
 
-const DB = process.env.DATABASE_LOCAL;
+const DB = process.env.DATABASE.replace(
+  '<PASSWORD>',
+  process.env.DATABASE_PASSWORD
+);
 
 const app = require('./app');
 

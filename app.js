@@ -42,6 +42,8 @@ app.post('/api/v1/books', upload.single('imageUrl'), async (req, res) => {
       bookUrl: req.body.bookUrl,
       publisher: req.body.publisher,
       description: req.body.description,
+      imgUrl: result.secure_url,
+      cloudinaryId: result.public_id,
     });
 
     res.status(200).json({
@@ -104,7 +106,13 @@ app.patch('/api/v1/books/:id', async (req, res) => {
 //Delete a book from DB
 app.delete('/api/v1/books/:id', async (req, res) => {
   try {
-    await Book.findByIdAndDelete(req.params.id);
+    const book = await Book.findById(req.params.id);
+
+    // Delete image from cloudinary
+    await cloudinary.uploader.destroy(book.cloudinaryId);
+
+    //Delete from DB
+    await Book.deleteOne(book);
 
     res.status(204).json({
       status: 'Delete Successful',

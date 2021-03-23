@@ -84,16 +84,38 @@ app.get('/api/v1/books/:id', async (req, res) => {
 });
 
 //Edit an existing book in DB
-app.patch('/api/v1/books/:id', async (req, res) => {
+app.patch('/api/v1/books/:id', upload.single('imageUrl'), async (req, res) => {
   try {
-    const book = await Book.findByIdAndUpdate(req.params.id, req.body, {
+    console.log(req.params.id);
+    //Get book from DB
+    const book = await Book.findById(req.params.id);
+
+    //Delete former image from cloudinary
+    await cloudinary.uploader.destroy(book.cloudinaryId);
+
+    //Upload new image
+    const result = await cloudinary.uploader.upload(req.file.path);
+
+    const data = {
+      title: req.body.title || book.body.title,
+      author: req.body.author || book.body.title,
+      bookUrl: req.body.bookUrl || book.body.title,
+      publisher: req.body.publisher || book.body.title,
+      description: req.body.description || book.body.title,
+      imgUrl: result.secure_url || book.body.title,
+      cloudinaryId: result.public_id || book.cloudinaryId,
+    };
+
+    const updatedBook = await Book.findByIdAndUpdate(req.params.id, data, {
       new: true,
       runValidators: true,
     });
 
+    console.log(updatedBook);
+
     res.status(200).json({
       status: 'success',
-      book,
+      updatedBook,
     });
   } catch (error) {
     res.status(500).json({

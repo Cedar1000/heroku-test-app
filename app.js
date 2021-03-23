@@ -1,42 +1,12 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const app = express();
+const cors = require('cors');
+const Book = require('./models/bookModel');
+const upload = require('./utils/multer');
+const cloudinary = require('./utils/cloudinary');
 
 app.use(express.json());
-
-//MODEL
-const bookSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: [true, 'a book must have a title'],
-  },
-
-  author: {
-    type: String,
-    required: [true, 'a book must have an author'],
-  },
-
-  bookUrl: {
-    type: String,
-    required: [true, 'a book must have a url'],
-  },
-
-  publisher: {
-    type: String,
-    required: [true, 'a book must have a publisher name'],
-  },
-
-  imageUrl: {
-    type: String,
-  },
-
-  description: {
-    type: String,
-    required: [true, 'a book must have a description'],
-  },
-});
-
-const Book = mongoose.model('Book', bookSchema);
+app.use(cors());
 
 //Get All Books
 app.get('/api/v1/books', async (req, res) => {
@@ -61,8 +31,11 @@ app.get('/', (req, res) => {
 });
 
 //Add A book to DB
-app.post('/api/v1/books', async (req, res) => {
+app.post('/api/v1/books', upload.single('imageUrl'), async (req, res) => {
+  console.log(req.file, 'Hi');
   try {
+    const result = await cloudinary.uploader.upload(req.file.path);
+
     const book = await Book.create({
       title: req.body.title,
       author: req.body.author,
@@ -74,6 +47,7 @@ app.post('/api/v1/books', async (req, res) => {
     res.status(200).json({
       status: 'success',
       book,
+      result,
     });
   } catch (error) {
     res.status(500).json({
@@ -94,6 +68,26 @@ app.get('/api/v1/books/:id', async (req, res) => {
         message: 'No book was found with that ID',
       });
     }
+
+    res.status(200).json({
+      status: 'success',
+      book,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error,
+    });
+  }
+});
+
+//Edit an existing book in DB
+app.patch('/api/v1/books/:id', async (req, res) => {
+  try {
+    const book = await Book.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
     res.status(200).json({
       status: 'success',

@@ -16,13 +16,18 @@ const bookSchema = new mongoose.Schema({
     required: [true, 'a book must have a url'],
   },
 
-  publisher: {
-    type: String,
-    required: [true, 'a book must have a publisher name'],
+  published: {
+    type: Number,
+    required: [true, 'a book must have a published year'],
   },
 
-  imageUrl: {
+  image: {
     type: String,
+  },
+
+  bookUrl: {
+    type: String,
+    required: [true, 'a book must have an imageUrl'],
   },
 
   description: {

@@ -4,6 +4,7 @@ const cors = require('cors');
 const Book = require('./models/bookModel');
 const upload = require('./utils/multer');
 const cloudinary = require('./utils/cloudinary');
+const path = require('path');
 
 app.use(express.json());
 app.use(cors());
@@ -31,18 +32,25 @@ app.get('/', (req, res) => {
 });
 
 //Add A book to DB
-app.post('/api/v1/books', upload.single('imageUrl'), async (req, res) => {
-  console.log(req.file, 'Hi');
+app.post('/api/v1/books', upload.single('image'), async (req, res) => {
   try {
+    const yearDigits = req.body.published.split('').length;
+
+    if (yearDigits !== 4) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'A year should be 4 digits',
+      });
+    }
     const result = await cloudinary.uploader.upload(req.file.path);
 
     const book = await Book.create({
       title: req.body.title,
       author: req.body.author,
       bookUrl: req.body.bookUrl,
-      publisher: req.body.publisher,
+      published: req.body.published,
       description: req.body.description,
-      imgUrl: result.secure_url,
+      image: result.secure_url,
       cloudinaryId: result.public_id,
     });
 
@@ -84,7 +92,7 @@ app.get('/api/v1/books/:id', async (req, res) => {
 });
 
 //Edit an existing book in DB
-app.patch('/api/v1/books/:id', upload.single('imageUrl'), async (req, res) => {
+app.patch('/api/v1/books/:id', upload.single('image'), async (req, res) => {
   try {
     console.log(req.params.id);
     //Get book from DB
@@ -97,12 +105,12 @@ app.patch('/api/v1/books/:id', upload.single('imageUrl'), async (req, res) => {
     const result = await cloudinary.uploader.upload(req.file.path);
 
     const data = {
-      title: req.body.title || book.body.title,
-      author: req.body.author || book.body.title,
-      bookUrl: req.body.bookUrl || book.body.title,
-      publisher: req.body.publisher || book.body.title,
-      description: req.body.description || book.body.title,
-      imgUrl: result.secure_url || book.body.title,
+      title: req.body.title || book.title,
+      author: req.body.author || book.author,
+      bookUrl: req.body.bookUrl || book.bookUrl,
+      publisher: req.body.publisher || book.publisher,
+      description: req.body.description || book.description,
+      image: result.secure_url || book.image,
       cloudinaryId: result.public_id || book.cloudinaryId,
     };
 

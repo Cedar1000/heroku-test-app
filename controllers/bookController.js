@@ -38,6 +38,7 @@ exports.addBook = catchAsync(async (req, res, next) => {
     title: req.body.title,
     author: req.body.author,
     bookUrl: req.body.bookUrl,
+    image: req.body.image,
     published: req.body.published,
     description: req.body.description,
   });

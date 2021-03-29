@@ -29,10 +29,6 @@ const bookSchema = new mongoose.Schema({
     type: String,
     required: [true, 'a book must have a description'],
   },
-
-  cloudinaryId: {
-    type: String,
-  },
 });
 
 const Book = mongoose.model('Book', bookSchema);

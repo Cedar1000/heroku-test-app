@@ -25,11 +25,6 @@ const bookSchema = new mongoose.Schema({
     type: String,
   },
 
-  bookUrl: {
-    type: String,
-    required: [true, 'a book must have an imageUrl'],
-  },
-
   description: {
     type: String,
     required: [true, 'a book must have a description'],

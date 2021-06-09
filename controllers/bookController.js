@@ -31,6 +31,7 @@ exports.addBook = catchAsync(async (req, res, next) => {
 
   const yearDigits = publishedString.split('').length;
 
+  //Check Years digit
   if (yearDigits !== 4)
     return next(new AppError('A year should be 4 digits', 403));
 
